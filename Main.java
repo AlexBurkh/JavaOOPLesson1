@@ -1,5 +1,6 @@
 import Generators.Generator;
 import Generators.HumanGenerator;
+import engine.GyneologicalExam;
 import models.Human;
 import models.KinshipManager;
 import models.KinshipType;
@@ -15,6 +16,7 @@ public class Main {
     private static Generator<Human> generator;
     private static KinshipManager kinshipManager;
     private static UserInterface ui;
+    private static GyneologicalExam exam;
 
     public static void main(String[] args) {
         int nHumans = 10;
@@ -32,15 +34,18 @@ public class Main {
         kinshipManager.setHumans(humans);
 
         kinshipManager.addKinship(humans.get(0), humans.get(4), KinshipType.husband);
-        kinshipManager.addKinship(humans.get(0), humans.get(1), KinshipType.son);
+        kinshipManager.addKinship(humans.get(1), humans.get(0), KinshipType.father);
         kinshipManager.addKinship(humans.get(0), humans.get(3), KinshipType.brother);
         System.out.println(kinshipManager);
+
+        System.out.println(exam.exam(humans.get(1)));
     }
 
     private static void Init(int nHumans) {
         generator = new HumanGenerator();
         //generateHumans(nHumans);
         kinshipManager = new KinshipManager();
+        exam = new GyneologicalExam(kinshipManager);
         ui = new ConsoleUserInterface();
     }
 

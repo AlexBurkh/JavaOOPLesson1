@@ -27,7 +27,13 @@ public class KinshipManager {
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < kinshipMatrix.length; i++) {
             for (int j = 0; j < kinshipMatrix[0].length; j++) {
-                System.out.print(kinshipMatrix[i][j] + " ");
+                var item = kinshipMatrix[i][j];
+                if (item != null) {
+                    System.out.printf("%-10s", kinshipMatrix[i][j]);
+                }
+                else {
+                    System.out.printf("%-10s", "-");
+                }
             }
             System.out.println();
         }
@@ -165,82 +171,148 @@ public class KinshipManager {
     }
     private void addAdditionalKinships(Kinship kinship) {
         if (kinship.getType() == KinshipType.husband || kinship.getType() == KinshipType.wife) {
-            List<Human> children = findChildren(kinship.getForWhom());
+            List<Human> firstSpouseChildren = findChildren(kinship.getWho());
+            List<Human> secondSpouseChildren = findChildren(kinship.getForWhom());
             if (kinship.getType() == KinshipType.husband) {
-                if (children != null) {
-                    for (Human child : children) {
+                if (firstSpouseChildren != null) {
+                    for (Human child : firstSpouseChildren) {
+                        checkAndAddKinship(new Kinship(kinship.getForWhom(), child, KinshipType.mother));
+                    }
+                }
+                if (secondSpouseChildren != null) {
+                    for (Human child : secondSpouseChildren) {
                         checkAndAddKinship(new Kinship(kinship.getWho(), child, KinshipType.father));
                     }
                 }
             } else {
-                if (children != null) {
-                    for (Human child : children) {
+                if (firstSpouseChildren != null) {
+                    for (Human child : firstSpouseChildren) {
+                        checkAndAddKinship(new Kinship(kinship.getForWhom(), child, KinshipType.father));
+                    }
+                }
+                if (secondSpouseChildren != null) {
+                    for (Human child : secondSpouseChildren) {
                         checkAndAddKinship(new Kinship(kinship.getWho(), child, KinshipType.mother));
                     }
                 }
             }
         }
         else if (kinship.getType() == KinshipType.father || kinship.getType() == KinshipType.mother) {
-            List<Human> brothersAndSisters = findBrothersAndSisters(kinship.getForWhom(), kinship.getWho());
+            List<Human> childBrothersAndSisters = findBrothersAndSisters(kinship.getForWhom(), kinship.getWho());
+            List<Human> parentChildren = findChildren(kinship.getWho());
             Human spouse = findMother(kinship.getForWhom());
             if (kinship.getType() == KinshipType.father) {
-                checkAndAddKinship(new Kinship(kinship.getWho(), spouse, KinshipType.husband));
-                assert brothersAndSisters != null;
-                for (Human brothersAndSister : brothersAndSisters) {
-                    checkAndAddKinship(new Kinship(kinship.getWho(), brothersAndSister, KinshipType.father));
+                if (spouse != null) {
+                    checkAndAddKinship(new Kinship(kinship.getWho(), spouse, KinshipType.husband));
+                }
+                if (childBrothersAndSisters != null) {
+                    for (Human brothersAndSister : childBrothersAndSisters) {
+                        checkAndAddKinship(new Kinship(kinship.getWho(), brothersAndSister, KinshipType.father));
+                    }
                 }
             } else {
                 checkAndAddKinship(new Kinship(kinship.getWho(), spouse, KinshipType.wife));
-                assert brothersAndSisters != null;
-                for (Human brothersAndSister : brothersAndSisters) {
-                    checkAndAddKinship(new Kinship(kinship.getWho(), brothersAndSister, KinshipType.mother));
+                if (childBrothersAndSisters != null) {
+                    for (Human brothersAndSister : childBrothersAndSisters) {
+                        checkAndAddKinship(new Kinship(kinship.getWho(), brothersAndSister, KinshipType.mother));
+                    }
                 }
             }
-        }
-        else if (kinship.getType() == KinshipType.brother || kinship.getType() == KinshipType.sister) {
-            List<Human> brothersAndSisters = findBrothersAndSisters(kinship.getForWhom(), kinship.getWho());
-            Human mother = findMother(kinship.getForWhom());
-            Human father = findFather(kinship.getForWhom());
-
-            // Mother
-            if (mother != null) {
-                if (kinship.getWho().getSex() == Sex.male) {
-                    checkAndAddKinship(new Kinship(kinship.getWho(), mother, KinshipType.son));
-                }
-                else {
-                    checkAndAddKinship(new Kinship(kinship.getWho(), mother, KinshipType.daughter));
-                }
-            }
-
-            // Father
-            if (father != null) {
-                if (kinship.getWho().getSex() == Sex.male) {
-                    checkAndAddKinship(new Kinship(kinship.getWho(), father, KinshipType.son));
-                }
-                else {
-                    checkAndAddKinship(new Kinship(kinship.getWho(), father, KinshipType.daughter));
-                }
-            }
-
-            // Brothers and sisters
-            if (brothersAndSisters != null && brothersAndSisters.size() > 0) {
-                for (Human brothersAndSister : brothersAndSisters) {
-                    if (kinship.getWho().getSex() == Sex.male) {
-                        checkAndAddKinship(new Kinship(kinship.getWho(), brothersAndSister, KinshipType.brother));
-                    } else {
-                        checkAndAddKinship(new Kinship(kinship.getWho(), brothersAndSister, KinshipType.sister));
+            if (parentChildren != null && childBrothersAndSisters != null) {
+                for (Human parentChild : parentChildren) {
+                    for (Human childBrotherAndSister : childBrothersAndSisters) {
+                        if (parentChild.getSex() == Sex.male) {
+                            checkAndAddKinship(new Kinship(parentChild, childBrotherAndSister, KinshipType.brother));
+                        }
+                        else {
+                            checkAndAddKinship(new Kinship(parentChild, childBrotherAndSister, KinshipType.sister));
+                        }
                     }
                 }
             }
         }
+        else if (kinship.getType() == KinshipType.brother || kinship.getType() == KinshipType.sister) {
+            List<Human> forWhomBrothersAndSisters = findBrothersAndSisters(kinship.getForWhom(), kinship.getWho());
+            List<Human> whosBrothersAndSisters = findBrothersAndSisters(kinship.getWho(), kinship.getForWhom());
+
+            Human forWhomsMother = findMother(kinship.getForWhom());
+            Human forHomsFather = findFather(kinship.getForWhom());
+            Human whosMother = findMother(kinship.getWho());
+            Human whosFather = findFather(kinship.getWho());
+
+
+            // Mother
+            if (forWhomsMother != null) {
+                if (kinship.getWho().getSex() == Sex.male) {
+                    checkAndAddKinship(new Kinship(kinship.getWho(), forWhomsMother, KinshipType.son));
+                }
+                else {
+                    checkAndAddKinship(new Kinship(kinship.getWho(), forWhomsMother, KinshipType.daughter));
+                }
+            }
+            if (whosMother != null) {
+                if (kinship.getForWhom().getSex() == Sex.male) {
+                    checkAndAddKinship(new Kinship(kinship.getForWhom(), whosMother, KinshipType.son));
+                }
+                else{
+                    checkAndAddKinship(new Kinship(kinship.getForWhom(), whosMother, KinshipType.daughter));
+                }
+            }
+
+            // Father
+            if (forHomsFather != null) {
+                if (kinship.getWho().getSex() == Sex.male) {
+                    checkAndAddKinship(new Kinship(kinship.getWho(), forHomsFather, KinshipType.son));
+                }
+                else {
+                    checkAndAddKinship(new Kinship(kinship.getWho(), forHomsFather, KinshipType.daughter));
+                }
+            }
+            if (whosFather != null) {
+                if (kinship.getForWhom().getSex() == Sex.male) {
+                    checkAndAddKinship(new Kinship(kinship.getForWhom(), whosFather, KinshipType.son));
+                }
+                else {
+                    checkAndAddKinship(new Kinship(kinship.getForWhom(), whosFather, KinshipType.daughter));
+                }
+            }
+
+            // Brothers and sisters
+            if (whosBrothersAndSisters != null && forWhomBrothersAndSisters != null) {
+                for (Human whosBrotherAndSister : whosBrothersAndSisters) {
+                    for (Human forWhomBrotherAndSister : forWhomBrothersAndSisters) {
+                        if (forWhomBrotherAndSister.getSex() == Sex.male) {
+                            checkAndAddKinship(new Kinship(forWhomBrotherAndSister, whosBrotherAndSister, KinshipType.brother));
+                        } else {
+                            checkAndAddKinship(new Kinship(forWhomBrotherAndSister, whosBrotherAndSister, KinshipType.sister));
+                        }
+                    }
+                }
+            }
+        }
+//        else if (kinship.getType() == KinshipType.son || kinship.getType() == KinshipType.daughter) {
+//            List<Human> brothersAndSisters = findChildren(kinship.getForWhom());
+//            for (Human brotherAndSister : brothersAndSisters) {
+//                if (kinship.getWho().getSex() == Sex.male) {
+//                    if (kinship.getWho() != brotherAndSister) {
+//                        checkAndAddKinship(new Kinship(kinship.getWho(), brotherAndSister, KinshipType.brother));
+//                    }
+//                }
+//                else {
+//                    if (kinship.getWho() != brotherAndSister) {
+//                        checkAndAddKinship(new Kinship(kinship.getWho(), brotherAndSister, KinshipType.sister));
+//                    }
+//                }
+//            }
+//        }
     }
 
-    private List<Human> findChildren(Human human) {
+    public List<Human> findChildren(Human human) {
         List<Human> children = new ArrayList<>();
         int i = humans.indexOf(human);
         for (int j = 0; j < kinshipMatrix[i].length; j++) {
             if (kinshipMatrix[i][j] != null) {
-                if ((kinshipMatrix[i][j] == KinshipType.son) || (kinshipMatrix[i][j] == KinshipType.daughter)) {
+                if ((kinshipMatrix[i][j] == KinshipType.father) || (kinshipMatrix[i][j] == KinshipType.mother)) {
                     children.add(humans.get(j));
                 }
             }

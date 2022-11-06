@@ -2,22 +2,25 @@ package engine;
 
 import models.Human;
 import models.Kinship;
+import models.KinshipManager;
 
 import java.util.List;
 
 public class GyneologicalExam {
     StringBuilder resultInfo;
+    KinshipManager manager;
 
-    public GyneologicalExam() {
+    public GyneologicalExam(KinshipManager manager) {
         resultInfo = new StringBuilder();
+        this.manager = manager;
     }
 
-/*    public String exam(Human humanToExam) {
+    public String exam(Human humanToExam) {
         this.resultInfo.append(humanToExam.toString());
-        List<Kinship> kinshipList = humanToExam.getKinshipList();
-        for (Kinship currentKinship : kinshipList) {
-            resultInfo.append("\n\t").append(currentKinship.toString());
+        var children = manager.findChildren(humanToExam);
+        for (Human child : children) {
+            resultInfo.append("\n\t").append(child);
         }
         return resultInfo.toString();
-    }*/
+    }
 }
