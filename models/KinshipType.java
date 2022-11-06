@@ -1,13 +1,13 @@
 package models;
 
 public enum KinshipType {
-    grandFather,
-    grandMother,
     father,
     mother,
-    sister,
     brother,
+    sister,
     wife,
     husband,
-    none,
+    son,
+    daughter,
+    none
 }

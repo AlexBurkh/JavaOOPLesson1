@@ -12,12 +12,12 @@ public class GyneologicalExam {
         resultInfo = new StringBuilder();
     }
 
-    public String exam(Human humanToExam) {
+/*    public String exam(Human humanToExam) {
         this.resultInfo.append(humanToExam.toString());
         List<Kinship> kinshipList = humanToExam.getKinshipList();
         for (Kinship currentKinship : kinshipList) {
             resultInfo.append("\n\t").append(currentKinship.toString());
         }
         return resultInfo.toString();
-    }
+    }*/
 }

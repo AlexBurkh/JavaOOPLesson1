@@ -1,6 +1,8 @@
 import Generators.Generator;
 import Generators.HumanGenerator;
 import models.Human;
+import models.KinshipManager;
+import models.KinshipType;
 import models.Sex;
 import view.ConsoleUserInterface;
 import view.UserInterface;
@@ -9,29 +11,42 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Main {
-    private static List<Human> humans;
+    private static List<Human> humans = new ArrayList<>();
     private static Generator<Human> generator;
+    private static KinshipManager kinshipManager;
     private static UserInterface ui;
 
     public static void main(String[] args) {
-        Init();
+        int nHumans = 10;
+        Init(nHumans);
 
-        for (Human h : humans) {
-            ui.print(h);
-        }
+
+        humans.add(new Human("Alex", "Burg", 26, Sex.male));
+        humans.add(new Human("Ivan", "Burg", 51, Sex.male));
+        humans.add(new Human("Oleg", "Mongol", 37, Sex.male));
+        humans.add(new Human("Mary", "Alf", 26, Sex.female));
+        humans.add(new Human("Valery", "Alf", 27, Sex.female));
+        humans.add(new Human("Kristin", "Milio", 52, Sex.female));
+        humans.add(new Human("Britney", "Amber", 39, Sex.female));
+
+        kinshipManager.setHumans(humans);
+
+        kinshipManager.addKinship(humans.get(0), humans.get(4), KinshipType.husband);
+        kinshipManager.addKinship(humans.get(0), humans.get(1), KinshipType.son);
+        kinshipManager.addKinship(humans.get(0), humans.get(3), KinshipType.brother);
+        System.out.println(kinshipManager);
     }
 
-    private static void Init() {
+    private static void Init(int nHumans) {
         generator = new HumanGenerator();
+        //generateHumans(nHumans);
+        kinshipManager = new KinshipManager();
         ui = new ConsoleUserInterface();
-        initHumans(20);
     }
 
-    private static void initHumans(int number) {
-        humans = new ArrayList<>();
+    private static void generateHumans(int number) {
         for (int i = 0; i < number; i++) {
             humans.add(generator.generate());
         }
     }
-
 }

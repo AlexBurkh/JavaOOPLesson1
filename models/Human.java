@@ -2,34 +2,34 @@ package models;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 public class Human {
-    String firstName;
-    String lastName;
-    int age;
-    Sex sex;
-    List<Kinship> kinshipList;
+    private final String firstName;
+    private final String lastName;
+    private int age;
+    private final Sex sex;
 
-    public Human(String firstName, String lastName, int age, Sex sex, List<Kinship> kinshipList) {
+    public Human(String firstName, String lastName, int age, Sex sex) {
         this.firstName = firstName;
         this.lastName = lastName;
         this.age = age;
         this.sex = sex;
-        this.kinshipList = kinshipList;
-    }
-
-    public Human(String firstName, String lastName, int age, Sex sex) {
-        this(firstName, lastName, age, sex, new ArrayList<>());
     }
 
     @Override
     public String toString() {
-        return  "firstName: '" + firstName + '\'' +
-                ", lastName: '" + lastName + '\'' +
-                ", age: " + age +
-                ", sex: " + sex;
+        return  lastName + " " + firstName + ": " + sex + ", " + age;
     }
 
+    @Override
+    public boolean equals(Object obj) {
+        if (obj instanceof Human human) {
+            return (firstName.equals(human.getFirstName())) && (lastName.equals(human.getLastName())) &&
+                    (age == human.getAge());
+        }
+        return false;
+    }
 
     // Getters
     public String getFirstName() {
@@ -41,12 +41,8 @@ public class Human {
     public int getAge() {
         return age;
     }
-    public List<Kinship> getKinshipList() {
-        return kinshipList;
+    public Sex getSex() {
+        return sex;
     }
-
     // Methods
-    public void addKinship(KinshipType type, Human human) {
-        this.kinshipList.add(new Kinship(type, human));
-    }
 }
