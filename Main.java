@@ -36,9 +36,8 @@ public class Main {
         kinshipManager.addKinship(humans.get(0), humans.get(4), KinshipType.husband);
         kinshipManager.addKinship(humans.get(1), humans.get(0), KinshipType.father);
         kinshipManager.addKinship(humans.get(0), humans.get(3), KinshipType.brother);
-        System.out.println(kinshipManager);
-
-        System.out.println(exam.exam(humans.get(1)));
+        ui.print(kinshipManager);
+        ui.print(exam.exam(humans.get(1)));
     }
 
     private static void Init(int nHumans) {
